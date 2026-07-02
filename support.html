@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Support · HorseTracking</title>
+  <style>
+    :root { color-scheme: light; --ink:#2A2620; --muted:#6F695E; --cream:#F4EEE2; --surface:#fff; --brass:#9A7B3F; --border:#D7CCB8; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--cream); color:var(--ink); font:16px/1.65 system-ui,-apple-system,sans-serif; }
+    main { width:min(760px,calc(100% - 32px)); margin:40px auto; background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:clamp(24px,5vw,48px); }
+    h1,h2 { font-family:Georgia,serif; line-height:1.2; }
+    h1 { font-size:clamp(32px,7vw,48px); margin:0 0 12px; }
+    h2 { margin-top:36px; }
+    .eyebrow { color:var(--brass); font-size:12px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }
+    .muted, footer { color:var(--muted); }
+    a { color:var(--ink); font-weight:650; }
+    nav { display:flex; flex-wrap:wrap; gap:16px; margin-bottom:32px; }
+    label { display:block; font-weight:650; margin-top:18px; }
+    input,select,textarea { width:100%; margin-top:6px; padding:12px; border:1px solid var(--border); border-radius:10px; font:inherit; }
+    textarea { min-height:160px; resize:vertical; }
+    button { margin-top:20px; padding:12px 18px; border:0; border-radius:10px; background:var(--ink); color:#FBF7F0; font:inherit; font-weight:700; cursor:pointer; }
+    button:disabled { opacity:.6; cursor:default; }
+    .honeypot { position:absolute; left:-9999px; }
+    .notice { margin-top:20px; padding:12px 16px; border-radius:10px; background:var(--cream); border:1px solid var(--border); display:none; }
+    footer { margin-top:40px; font-size:14px; }
+  </style>
+</head>
+<body><main>
+  <div class="eyebrow">HorseTracking</div>
+  <nav><a href="./privacy.html">Confidentialité</a><a href="./support.html">Support</a></nav>
+  <h1>Support et contact</h1>
+  <p class="muted">Bug, confidentialité, suppression de compte ou signalement : l'équipe HorseTracking répond via ce formulaire.</p>
+  <div class="notice" id="notice"></div>
+  <form id="supportForm">
+    <label>Email<input type="email" name="email" required maxlength="254" autocomplete="email"></label>
+    <label>Sujet<select name="topic">
+      <option value="support">Support technique</option>
+      <option value="privacy">Confidentialité et droits</option>
+      <option value="moderation">Signaler un contenu</option>
+      <option value="account_deletion">Suppression de compte</option>
+    </select></label>
+    <label>Message<textarea name="message" required minlength="10" maxlength="2000"></textarea></label>
+    <label class="honeypot">Site web<input name="website" tabindex="-1" autocomplete="off"></label>
+    <button type="submit" id="submitBtn">Envoyer la demande</button>
+  </form>
+  <h2>Depuis l'app</h2>
+  <p>Compte et synchronisation : <strong>Réglages → Compte</strong>. Suppression du compte : <strong>Réglages → Compte → Supprimer mon compte</strong>. Données locales uniquement : <strong>Réglages → Réinitialiser les données locales</strong>.</p>
+  <h2>Signaler ou bloquer</h2>
+  <p>Chaque fiche Annuaire propose les actions <strong>Signaler cette fiche</strong> et <strong>Bloquer cet utilisateur</strong>. Les blocages se gèrent ensuite depuis le compte.</p>
+  <footer>Dernière mise à jour : 2 juillet 2026 · HorseTracking</footer>
+</main>
+<script>
+  const form = document.getElementById('supportForm');
+  const notice = document.getElementById('notice');
+  const btn = document.getElementById('submitBtn');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    btn.disabled = true;
+    const data = Object.fromEntries(new FormData(form).entries());
+    try {
+      const r = await fetch('https://vrxbnvkwinedboblkbaz.supabase.co/functions/v1/legal/support-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (r.ok) {
+        notice.textContent = 'Votre demande a bien été enregistrée. Nous revenons vers vous rapidement.';
+        notice.style.display = 'block';
+        form.reset();
+      } else {
+        notice.textContent = "Envoi impossible. Vérifiez les champs ou réessayez plus tard.";
+        notice.style.display = 'block';
+      }
+    } catch {
+      notice.textContent = "Envoi impossible. Vérifiez votre connexion et réessayez.";
+      notice.style.display = 'block';
+    }
+    btn.disabled = false;
+  });
+</script>
+</body>
+</html>
